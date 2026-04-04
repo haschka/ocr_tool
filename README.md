@@ -14,6 +14,9 @@ gcc -O2 -march=native ocr_tool.c local_resolve.c `sdl2-config --libs` \
 `pkgconf --libs --cflags glib-2.0` -lcurl -lpng -ljson-c -pthread \
 -o ocr_tool
 ```
+
+Gentoo Users may enjoy the ebuild in this repository. 
+
 ## General Usage:
 The tool requires an inference provider with OCR
 capabilities. Currently the tool does not connect to SSL enabled
@@ -46,14 +49,24 @@ with reasonable good models. The tool was mainly tested with
    
 5. Quit the tool by hitting the ESCAPE key. 
 
-## Keybindings:
+## Keybindings and Mouse Usage:
 
 - `q`-key kills the current request to the inference provider
   (i.e. llama.cpp). Some models will take a long time to respond,
   i.e. if the selected area contains no text. This key allows you to
   cancel a request.
   
-- `ESC`-key quits the program
+- `ESC`-key quits the program.
+
+- `1` Standard zoom level.
+
+- `2` 2x zoom.
+
+- `3` 3x zoom.
+
+- `Left Mouse` Drag a red selection rectangle that contains the text to be OCR'd.
+
+- `Middle Mouse` Pan accross the document, and switch to selected zoom level. 
 
 ## Trivia:
 The provided test image `test.png` is taken from:

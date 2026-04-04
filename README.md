@@ -1,12 +1,13 @@
 # ocr_tool
-A tool to perform ocr with ai OCR model and an inference engine like llama.cpp
+A tool to perform OCR with an AI OCR model and an inference engine like llama.cpp.
 
 ## Installation:
 
 The tool is dependent on glib-2.0, libpng, json-c, SDL2, and a
-pthreads implemenation. Please install typical compilier, build tools
-according to your distribution. I.e. build-essentials and the dev
-packages of the dependent libraries.
+pthreads implemenation. Please install a typical c-compilier, 
+and build tool-chain according to your distribution. 
+I.e. build-essentials and the dev packages of the 
+dependent libraries.
 
 Successful compilation can in general be achieved like:
 ```

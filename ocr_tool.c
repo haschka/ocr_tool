@@ -664,7 +664,28 @@ void graceful_exit(llm_thread_data* thread_data,struct timespec quit_delay) {
   }
   return;
 }
+
+static inline void redraw(SDL_Renderer* renderer, SDL_Texture* texture,
+			  unsigned int* image, int pitch,
+			  int screen_width, int screen_height,
+			  int image_origin_x, int image_origin_y,
+			  int image_width, int image_height,
+			  int zoom) {
   
+  unsigned int* image_frame;
+  
+  SDL_LockTexture(texture, NULL, (void**)&image_frame, &pitch);
+  memset(image_frame,0,sizeof(int)*screen_width*screen_height);
+  image_to_frame_with_zoom_at_point(image_origin_x, image_origin_y,
+				    zoom,
+				    image_width, image_height,
+				    screen_width, screen_height,
+				    image_frame,
+				    image);
+  SDL_UnlockTexture(texture);
+  SDL_RenderCopy(renderer,texture,NULL,NULL);
+
+}
 
 int main(int argc, char** argv) {
 
@@ -822,7 +843,17 @@ int main(int argc, char** argv) {
 	break;
 
       case SDL_WINDOWEVENT:
-	if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
+	if (event.window.event == SDL_WINDOWEVENT_EXPOSED) {
+	  
+	  redraw(renderer, texture,
+		 image, pitch,
+		 screen_width,screen_height,
+		 image_origin_x, image_origin_y,
+		 image_width, image_height,
+		 zoom);
+	  if(off_screen_frame_available) off_screen_frame_available = 0;
+	  
+	} else if (event.window.event == SDL_WINDOWEVENT_CLOSE) {
 	  graceful_exit(thread_data,quit_delay);
 	  goto finish;
 	}
@@ -898,11 +929,37 @@ int main(int argc, char** argv) {
 	
 	if (event.key.keysym.sym == SDLK_1) {
 	  zoom = 1;
+
+	  redraw(renderer, texture,
+		 image, pitch,
+		 screen_width,screen_height,
+		 image_origin_x, image_origin_y,
+		 image_width, image_height,
+		 zoom);
+	  if(off_screen_frame_available) off_screen_frame_available = 0;
+	  
 	} else if (event.key.keysym.sym == SDLK_2) {
 	  zoom = 2;
+
+	  redraw(renderer, texture,
+		 image, pitch,
+		 screen_width,screen_height,
+		 image_origin_x, image_origin_y,
+		 image_width, image_height,
+		 zoom);
+	  if(off_screen_frame_available) off_screen_frame_available = 0;
+
 	} else if (event.key.keysym.sym == SDLK_3) {
 	  zoom = 3;
 
+	  redraw(renderer, texture,
+		 image, pitch,
+		 screen_width,screen_height,
+		 image_origin_x, image_origin_y,
+		 image_width, image_height,
+		 zoom);
+	  if(off_screen_frame_available) off_screen_frame_available = 0;
+	  
 	} else if (event.key.keysym.sym == SDLK_q) {
 	  pthread_mutex_lock(&lock);
 	  currently_active = thread_data->active;
@@ -968,7 +1025,6 @@ int main(int argc, char** argv) {
 	SDL_UnlockTexture(texture);
 	SDL_RenderCopy(renderer,texture,NULL,NULL);
 	
-	SDL_RenderPresent(renderer);
       }
       
     } else if (mouse_middle_down) {
@@ -1000,14 +1056,14 @@ int main(int argc, char** argv) {
       SDL_UnlockTexture(texture);
       SDL_RenderCopy(renderer,texture,NULL,NULL);
       
-      SDL_RenderPresent(renderer);
-      
     }
-  
+
+    SDL_RenderPresent(renderer);
+    
     clock_gettime(CLOCK_MONOTONIC,&end);
     loop_duration =
       (end.tv_sec - start.tv_sec) * 1e9 + (end.tv_nsec - start.tv_nsec);
-    loop_duration = abs(loop_duration);
+    loop_duration = labs(loop_duration);
     if (loop_duration < TARGET_LOOP_DURATION_SECONDS * 1e9) {
       loop_delay.tv_nsec =
 	(long)(TARGET_LOOP_DURATION_SECONDS * 1e9 - loop_duration);
